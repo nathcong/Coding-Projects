@@ -18,6 +18,6 @@ To compile the complete program, input:
 Following this input, the program will be compiled and generated into an executable binary, titled sorting.
 
 To run the program, input:
-> ./sorting -h
+> ./sorting
 
 A help message will be displayed with information on the available sorting algorithms and the arguments necessary to run the program.
