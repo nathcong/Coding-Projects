@@ -10,7 +10,21 @@
 #include <getopt.h>
 #include <stdbool.h>
 
-#define OPTIONS "bc"
+#define OPTIONS "bchi"
+
+void help(void) {
+	fprintf(stdout, "\nSYNOPSIS\n");
+	fprintf(stdout, "  A library of sorting algorithms, all sorting a unique array of 25 integers.\n");
+	fprintf(stdout, "USAGE\n");
+	fprintf(stdout, "  ./sorting [sorting algorithm options]\n");
+	fprintf(stdout, "OPTIONS\n");
+	fprintf(stdout, "  -b: Bubble Sort\n");
+	fprintf(stdout, "  -c: Cocktail Shaker Sort\n");
+	fprintf(stdout, "  -i: Insertion sort\n");
+	fprintf(stdout, "DESCRIPTION\n");
+	fprintf(stdout, "Run without options to display this help message.\n\n");
+	fprintf(stdout, "WIP, more algorithms and optimizations to come.\n\n");
+}
 
 /* reset array to original */
 void reset(int *A, int *OA) {
@@ -28,6 +42,8 @@ void printarray(int *A) {
 
 void bubblesort(int *A) {
 	int temp;
+	bool swapped = false;
+
 	/* initial loop for number of passes through the array */
 	for (int j = 0; j < 25; j++) {
 		/* nested loop for comparisons and swapping */
@@ -35,8 +51,12 @@ void bubblesort(int *A) {
 			if (A[i] > A[i+1]) {
 				temp = A[i+1];
 				A[i+1] = A[i];
-				A[i] = temp;			
+				A[i] = temp;
+				swapped = true;
 			}
+		}
+		if (swapped == false) {
+			return;
 		}
 	}
 }
@@ -81,34 +101,53 @@ void cocktailshakersort(int *A) {
 	}
 }
 
+void insertionsort(int *A) {
+	int temp;
+	int j;
+
+	/* initial loop to go through array in order */
+	for (int i = 0; i < 25; i++) {
+		j = i;
+		temp = A[i];
+		/* nested while to go through array backwards from i index until no swap is needed */
+		while (j > 0 && temp < A[j-1]) {
+			A[j] = A[j-1];
+			j--;
+		}
+		A[j] = temp;
+	}
+}
+
 int main(int argc, char **argv) {
 	int opt = 0;
 	bool arguments = false;
-	
+	bool first = true;
+
 	/* guarantees unique numbers from previous runs */
         srand(time(0));
 
-	/* generate random array */
+        /* generate random array */
         int *A =  malloc(sizeof(int) * 25);
         for (int i = 0; i < 25; i++) {
-		A[i] = rand() % 1000000;
+                A[i] = rand() % 1000000;
         }
 
-	/* duplicate array to reset if multiple arguments inputted */
-	int *OA = malloc(sizeof(int) * 25);
-	for (int i = 0; i < 25; i++) {
-		OA[i] = A[i];
-	}
+        /* duplicate array to reset if multiple arguments inputted */
+        int *OA = malloc(sizeof(int) * 25);
+        for (int i = 0; i < 25; i++) {
+                OA[i] = A[i];
+        }
 
 	/* check arguments to run appropriate sorts */
 	while ((opt = getopt(argc, argv, OPTIONS)) != -1) {
 		arguments = true;
-		/* print original array */
-		fprintf(stdout, "Unsorted Array:\n");
-		for (int i = 0; i < 25; i++) {
-			fprintf(stdout, "%d ", OA[i]);
+		
+		if (first == true) {
+			/* print original array */
+			fprintf(stdout, "Unsorted Array:\n");
+			printarray(OA);
+			first = false;
 		}
-		fprintf(stdout, "\n\n");
 
 		switch (opt) {
 			case 'b': {
@@ -125,6 +164,13 @@ int main(int argc, char **argv) {
 				reset(A, OA);
 				break;
 			}
+			case 'i': {
+				insertionsort(A);
+				fprintf(stdout, "Insertion Sorted Array:\n");
+				printarray(A);
+				reset(A, OA);
+				break;
+			}
 			default: {
 				fprintf(stdout, "Invalid argument detected. Execution terminated.\n");
 				free(A);
@@ -136,10 +182,10 @@ int main(int argc, char **argv) {
 	
 	/* checks if arguments were detected, if not end program */
 	if (arguments == false) {
-		fprintf(stdout, "No arguments detected. Execution terminated.\n");
+		help();
 		free(A);
 		free(OA);
-		return -1;
+		return 0;
 	}
 
 	fprintf(stdout, "Sorts completed, ending program.\n");
