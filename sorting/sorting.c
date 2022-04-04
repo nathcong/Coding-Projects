@@ -10,7 +10,7 @@
 #include <getopt.h>
 #include <stdbool.h>
 
-#define OPTIONS "bchi"
+#define OPTIONS "bch:is"
 
 void help(void) {
 	fprintf(stdout, "\nSYNOPSIS\n");
@@ -20,7 +20,9 @@ void help(void) {
 	fprintf(stdout, "OPTIONS\n");
 	fprintf(stdout, "  -b: Bubble Sort\n");
 	fprintf(stdout, "  -c: Cocktail Shaker Sort\n");
-	fprintf(stdout, "  -i: Insertion sort\n");
+	fprintf(stdout, "  -h [min/max]: Heap Sort, option of minimum and maximum heap\n");
+	fprintf(stdout, "  -i: Insertion Sort\n");
+	fprintf(stdout, "  -s: Selection Sort\n");
 	fprintf(stdout, "DESCRIPTION\n");
 	fprintf(stdout, "Run without options to display this help message.\n\n");
 	fprintf(stdout, "WIP, more algorithms and optimizations to come.\n\n");
@@ -101,6 +103,10 @@ void cocktailshakersort(int *A) {
 	}
 }
 
+void heapsort(int *A, bool min/max) {
+	
+}
+
 void insertionsort(int *A) {
 	int temp;
 	int j;
@@ -118,10 +124,35 @@ void insertionsort(int *A) {
 	}
 }
 
+void selectionsort(int *A) {
+	int min;
+	int temp;
+
+	/* initial loop to track what indices have been sorted already */	
+	for (int i = 0; i < 25; i++) {
+		min = i;
+
+		/* nested loop to start from first unsorted indice and find minimum value */
+		for (int j = i; j < 25; j++) {
+			if (A[min] > A[j]) {
+				min = j;
+			}
+		}
+
+		/* swap only if start point of search is not minimum (already in correct position */
+		if (min != A[i]) {
+			temp = A[i];
+			A[i] = A[min];
+			A[min] = temp;
+		}
+	}
+}
+
 int main(int argc, char **argv) {
 	int opt = 0;
 	bool arguments = false;
 	bool first = true;
+	bool max = false;
 
 	/* guarantees unique numbers from previous runs */
         srand(time(0));
@@ -164,6 +195,22 @@ int main(int argc, char **argv) {
 				reset(A, OA);
 				break;
 			}
+			case 'h': {
+				if (strcmp("min", optarg) == 0) {
+					max = false;
+				}
+				else if (strcmp("max", optarg) == 0) {
+					max = true;
+				}
+				else {
+					fprintf(stdout, "Invalid parameters for -h. Execution terminated.\n");
+				}
+				heapsort(A, max);
+				fprintf(stdout, "Heap Sorted Array:\n");
+				printarray(A);
+				reset(A, OA);
+				break;
+			}
 			case 'i': {
 				insertionsort(A);
 				fprintf(stdout, "Insertion Sorted Array:\n");
@@ -171,6 +218,13 @@ int main(int argc, char **argv) {
 				reset(A, OA);
 				break;
 			}
+			case 's': {
+				selectionsort(A);
+				fprintf(stdout, "Selection Sorted Array:\n");
+				printarray(A);
+				reset(A, OA);
+				break;
+			}	  
 			default: {
 				fprintf(stdout, "Invalid argument detected. Execution terminated.\n");
 				free(A);
